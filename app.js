@@ -17,7 +17,7 @@ app.use(express.json());
 app.use(
     cors({
         credentials: true,
-        origin: [process.env.FRONTEND_URL_DEPLOY, process.env.FRONTEND_URL_DEVELOPMENT]
+        origin: process.env.FRONTEND_URL
     })
 );
 const sessionOptions = {
@@ -25,9 +25,15 @@ const sessionOptions = {
     resave: false,
     saveUninitialized: false,
 };
-app.use(
-    session(sessionOptions)
-);
+if (process.env.NODE_ENV !== "development") {
+    sessionOptions.proxy = true;
+    sessionOptions.cookie = {
+        sameSite: "none",
+        secure: true,
+    };
+}
+app.use(session(sessionOptions));
+
 
 UserRoutes(app);
 CourseRoutes(app);
